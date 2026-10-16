@@ -87,5 +87,5 @@ fun dadesContacte(command: String, contactes: MutableMap<String, Contacte>) {
 }
 
 fun llistaContactes(contactes: MutableMap<String, Contacte>) {
-    TODO("Not yet implemented")
+    if (contactes.isEmpty()) "" else contactes.keys.joinToString {","}
 }
