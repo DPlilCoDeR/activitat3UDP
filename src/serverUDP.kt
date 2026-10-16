@@ -24,16 +24,29 @@
 import java.io.File
 import java.net.*
 
-fun main(){
-    val arxiu = File("./contactes.txt")
-    if(!arxiu.exists()){
+val arxiu = File("./contactes.txt")
+
+fun main() {
+    if (!arxiu.exists()) {
         arxiu.createNewFile()
     }
     val port = 8080
+    val buffer = ByteArray(1472)
+    val contactes = mutableMapOf<String, Contacte>()
+
+    fun updateContactes() {
+
+    if (arxiu.exists()) {
+        arxiu.forEachLine { line ->
+            val contact = line.split(":")
+            if (contact.size == 3) {
+                contactes[contact[0]] = Contacte(contact[0], contact[1], contact[2])
+            }
+            }
+        }
+    }
 
     DatagramSocket(port).use { socket ->
-        val buffer = ByteArray(1472)
-
         while (true){
             val packet = DatagramPacket(buffer,0,buffer.size)
             val clientIp = packet.address
@@ -41,9 +54,9 @@ fun main(){
             socket.receive(packet)
 
             val resposta = when (val command = String(packet.data, 0, packet.length)) {
-               "LLISTA_CONTACTES" -> llistaContactes()
-               command.startsWith("DADES").toString() -> dadesContacte()
-               command.startsWith("CREA").toString() -> creaContacte()
+               "LLISTA_CONTACTES" -> llistaContactes(contactes)
+               command.startsWith("DADES").toString() -> dadesContacte(command, contactes)
+               command.startsWith("CREA").toString() -> creaContacte(command, contactes)
                else  -> println("Unknown command")
            }
             val respostaByte = resposta.toString().toByteArray()
@@ -53,14 +66,27 @@ fun main(){
     }
 }
 
-fun creaContacte() {
+fun creaContacte(command: String, contactes: MutableMap<String, Contacte>) {
+    val (nom, email, telefon) = command.removePrefix("CREA").trim().split(":")
+    if(contactes.containsKey(nom)){
+        "Error creating a contacte"
+    } else {
+        try {
+            arxiu.appendText("${nom}:${email}:${telefon}\n")
+            println("OK")
+        } catch (e: Exception) {
+            "Error: ${e.message}"
+        }
+    }
+
+
+
+}
+
+fun dadesContacte(command: String, contactes: MutableMap<String, Contacte>) {
     TODO("Not yet implemented")
 }
 
-fun dadesContacte() {
-    TODO("Not yet implemented")
-}
-
-fun llistaContactes() {
+fun llistaContactes(contactes: MutableMap<String, Contacte>) {
     TODO("Not yet implemented")
 }
