@@ -78,13 +78,12 @@ fun creaContacte(command: String, contactes: MutableMap<String, Contacte>) {
             "Error: ${e.message}"
         }
     }
-
-
-
 }
 
 fun dadesContacte(command: String, contactes: MutableMap<String, Contacte>) {
-    TODO("Not yet implemented")
+    val nom = command.removePrefix("DADES").trim()
+    val contacte = contactes[nom]
+    if (contacte != null) "${contacte.nom}:${contacte.email}:${contacte.telefon}" else ""
 }
 
 fun llistaContactes(contactes: MutableMap<String, Contacte>) {
